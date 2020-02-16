@@ -61,14 +61,13 @@ class ContentPlayerBloc extends Bloc<ContentPlayerEvent, ContentPlayerState> {
 
   @override
   Stream<ContentPlayerState> mapEventToState(ContentPlayerEvent event) async* {
-    print('>>> test');
+    // print('>>> test');
     if (event is ContentPlayerEventMove) {
-      print(event.item.audioPath);
+      // print(event.item.audioPath);
       if (player.state == AudioPlayerState.PLAYING ||
           player.state == AudioPlayerState.PAUSED) {
         await player.stop();
       }
-      // await player.setFilePath(await localFile('${event.index}'));
       player.play(event.item.audioPath, isLocal: true);
       // play audio at item
       yield ContentPlayerStateChanged(imagePath: event.item.imagePath);
