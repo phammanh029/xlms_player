@@ -18,6 +18,8 @@ class ContentPlayerEventMove extends ContentPlayerEvent {
   List<Object> get props => [item];
 }
 
+class ContentPlayerEventPause extends ContentPlayerEvent {}
+
 class ContentPLayerEventDone extends ContentPlayerEvent {
   final bool completed;
 
@@ -50,6 +52,8 @@ class ContentPlayerState extends Equatable {
 }
 
 class ContentPlayerStateInitial extends ContentPlayerState {}
+
+// class ContentPlayerState extends ContentPlayerState {}
 
 class ContentPlayerStateLoading extends ContentPlayerState {}
 
@@ -123,6 +127,20 @@ class ContentPlayerBloc extends Bloc<ContentPlayerEvent, ContentPlayerState> {
       _total = event.totalItem;
       _current = 0;
       yield ContentPlayerStateInitial();
+    }
+
+    if (event is ContentPlayerEventPause) {
+      switch (player.state) {
+        case AudioPlayerState.PLAYING:
+          await player.pause();
+          break;
+        case AudioPlayerState.PAUSED:
+          await player.resume();
+          break;
+        default:
+          break;
+      }
+      yield state;
     }
     // print('>>> test');
     if (event is ContentPlayerEventMove) {

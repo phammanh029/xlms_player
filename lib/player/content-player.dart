@@ -57,15 +57,21 @@ class _ContentPlayerState extends State<ContentPlayer> {
                       '${_controller.page.toInt() + 1} / ${widget.items.length}');
                 }),
             Expanded(
-              child: PageView(
-                  controller: _controller,
-                  onPageChanged: (index) {
-                    _bloc
-                        .add(ContentPlayerEventMove(item: widget.items[index]));
-                  },
-                  children: widget.items
-                      .map((item) => Image.file(File(item.imagePath)))
-                      .toList()),
+              child: InkWell(
+                onTap: () {
+                  // support pause
+                  _bloc.add(ContentPlayerEventPause());
+                },
+                child: PageView(
+                    controller: _controller,
+                    onPageChanged: (index) {
+                      _bloc.add(
+                          ContentPlayerEventMove(item: widget.items[index]));
+                    },
+                    children: widget.items
+                        .map((item) => Image.file(File(item.imagePath)))
+                        .toList()),
+              ),
             ),
             BlocBuilder(
                 bloc: _bloc,
