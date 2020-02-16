@@ -20,7 +20,14 @@ class _ContentPlayerState extends State<ContentPlayer> {
   @override
   void initState() {
     _bloc = ContentPlayerBloc();
+    _bloc.add(ContentPlayerEventMove(item: widget.items[0]));
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _bloc.close();
+    super.dispose();
   }
 
   @override
@@ -28,8 +35,7 @@ class _ContentPlayerState extends State<ContentPlayer> {
     return Container(
       child: PageView(
           onPageChanged: (index) {
-            // change content
-            _bloc.add(ContentPlayerEventMove(index: index));
+            _bloc.add(ContentPlayerEventMove(item: widget.items[index]));
           },
           children: widget.items
               .map((item) => Image.file(File(item.imagePath)))

@@ -1,3 +1,5 @@
+import 'package:audioplayers/audioplayers.dart';
+import 'package:ebook_player/model/PlayerItem.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
@@ -8,12 +10,12 @@ class ContentPlayerEvent extends Equatable {
 }
 
 class ContentPlayerEventMove extends ContentPlayerEvent {
-  final int index;
+  final PlayerItem item;
 
-  ContentPlayerEventMove({@required this.index});
+  ContentPlayerEventMove({@required this.item});
 
   @override
-  List<Object> get props => [index];
+  List<Object> get props => [item];
 }
 
 // state
@@ -27,12 +29,12 @@ class ContentPlayerStateInitial extends ContentPlayerState {}
 class ContentPlayerStateLoading extends ContentPlayerState {}
 
 class ContentPlayerStateChanged extends ContentPlayerState {
-  final int index;
+  final String imagePath;
 
-  ContentPlayerStateChanged({@required this.index});
+  ContentPlayerStateChanged({@required this.imagePath});
 
   @override
-  List<Object> get props => [index];
+  List<Object> get props => [imagePath];
 }
 
 class ContentPlayerStateError extends ContentPlayerState {
@@ -46,14 +48,30 @@ class ContentPlayerStateError extends ContentPlayerState {
 
 // bloc
 class ContentPlayerBloc extends Bloc<ContentPlayerEvent, ContentPlayerState> {
+  final player = AudioPlayer();
+
   @override
   ContentPlayerState get initialState => ContentPlayerStateInitial();
 
   @override
+  Future<void> close() {
+    player.dispose();
+    return super.close();
+  }
+
+  @override
   Stream<ContentPlayerState> mapEventToState(ContentPlayerEvent event) async* {
+    print('>>> test');
     if (event is ContentPlayerEventMove) {
+      print(event.item.audioPath);
+      if (player.state == AudioPlayerState.PLAYING ||
+          player.state == AudioPlayerState.PAUSED) {
+        await player.stop();
+      }
+      // await player.setFilePath(await localFile('${event.index}'));
+      player.play(event.item.audioPath, isLocal: true);
       // play audio at item
-      yield ContentPlayerStateChanged(index: event.index);
+      yield ContentPlayerStateChanged(imagePath: event.item.imagePath);
     }
   }
 }
