@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:ebook_player/home.bloc.dart';
-import 'package:ebook_player/model/PlayerItem.dart';
 import 'package:ebook_player/player/content-player.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +59,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                       return ContentPlayer(items: state.items);
                     }
                     if (state is HomeStateLoading) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(
+                          child: const CircularProgressIndicator());
                     }
 
                     if (state is HomeStateError) {

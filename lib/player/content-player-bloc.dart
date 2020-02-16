@@ -18,6 +18,16 @@ class ContentPlayerEventMove extends ContentPlayerEvent {
   List<Object> get props => [item];
 }
 
+class ContentPLayerEventDone extends ContentPlayerEvent {}
+
+class ContentPLayerEventProgressChanged extends ContentPlayerEvent {
+  final double value;
+
+  ContentPLayerEventProgressChanged({@required this.value});
+  @override
+  List<Object> get props => [value];
+}
+
 // state
 class ContentPlayerState extends Equatable {
   @override
@@ -27,6 +37,17 @@ class ContentPlayerState extends Equatable {
 class ContentPlayerStateInitial extends ContentPlayerState {}
 
 class ContentPlayerStateLoading extends ContentPlayerState {}
+
+class ContentPlayerStateDone extends ContentPlayerState {}
+
+class ContentPlayerStateProgressChanged extends ContentPlayerState {
+  final double percent;
+
+  ContentPlayerStateProgressChanged({@required this.percent});
+
+  @override
+  List<Object> get props => [percent];
+}
 
 class ContentPlayerStateChanged extends ContentPlayerState {
   final String imagePath;
@@ -49,6 +70,22 @@ class ContentPlayerStateError extends ContentPlayerState {
 // bloc
 class ContentPlayerBloc extends Bloc<ContentPlayerEvent, ContentPlayerState> {
   final player = AudioPlayer();
+  ContentPlayerBloc() {
+    player.onPlayerCompletion.listen((event) {
+      add(ContentPLayerEventDone());
+    }, onDone: () {
+      print('onDone');
+      // move next
+    });
+
+    player.onAudioPositionChanged.listen((event) async {
+      final duration = await player.getDuration();
+      final current = await player.getCurrentPosition();
+      add(ContentPLayerEventProgressChanged(value: current / duration));
+    });
+  }
+
+  void onPlayerComplete() {}
 
   @override
   ContentPlayerState get initialState => ContentPlayerStateInitial();
@@ -71,6 +108,14 @@ class ContentPlayerBloc extends Bloc<ContentPlayerEvent, ContentPlayerState> {
       player.play(event.item.audioPath, isLocal: true);
       // play audio at item
       yield ContentPlayerStateChanged(imagePath: event.item.imagePath);
+    }
+
+    if (event is ContentPLayerEventDone) {
+      yield ContentPlayerStateDone();
+    }
+
+    if (event is ContentPLayerEventProgressChanged) {
+      yield ContentPlayerStateProgressChanged(percent: event.value);
     }
   }
 }

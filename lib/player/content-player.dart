@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ebook_player/model/PlayerItem.dart';
 import 'package:ebook_player/player/content-player-bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ContentPlayer extends StatefulWidget {
   final List<PlayerItem> items;
@@ -17,6 +18,7 @@ class ContentPlayer extends StatefulWidget {
 
 class _ContentPlayerState extends State<ContentPlayer> {
   ContentPlayerBloc _bloc;
+  final PageController _controller = PageController();
   @override
   void initState() {
     _bloc = ContentPlayerBloc();
@@ -27,19 +29,53 @@ class _ContentPlayerState extends State<ContentPlayer> {
   @override
   void dispose() {
     _bloc.close();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: PageView(
-          onPageChanged: (index) {
-            _bloc.add(ContentPlayerEventMove(item: widget.items[index]));
-          },
-          children: widget.items
-              .map((item) => Image.file(File(item.imagePath)))
-              .toList()),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: BlocListener(
+        bloc: _bloc,
+        listener: (context, state) {
+          if (state is ContentPlayerStateDone) {
+            if (_controller.page < widget.items.length - 1) {
+              _controller.nextPage(
+                  duration: Duration(seconds: 1), curve: Curves.easeInOutExpo);
+            }
+          }
+        },
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: PageView(
+                  controller: _controller,
+                  onPageChanged: (index) {
+                    _bloc
+                        .add(ContentPlayerEventMove(item: widget.items[index]));
+                  },
+                  children: widget.items
+                      .map((item) => Image.file(File(item.imagePath)))
+                      .toList()),
+            ),
+            BlocBuilder(
+                bloc: _bloc,
+                builder: (context, state) {
+                  if (state is ContentPlayerStateProgressChanged) {
+                    return LinearProgressIndicator(value: state.percent);
+                  }
+
+                  if (state is ContentPlayerStateDone) {
+                    return const Text('Move to next page in a seconds');
+                  }
+
+                  return const CircularProgressIndicator();
+                })
+          ],
+        ),
+      ),
     );
   }
 }
