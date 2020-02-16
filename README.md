@@ -1,16 +1,17 @@
 # ebook_player
+    play a zip file contain image and audio by name index
+# Get started
+    1. prepare a zip file with name of image and mp3 files follow format: ${name}.(png|jpg) ${name}.mp3
 
-A new Flutter project.
+    example:
 
-## Getting Started
+    content:
+        1.png
+        1.mp3
+        2.png
+        3.mp3
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+    2. copy to phone
+    3. open app
+    4. select file
+    5. drag image and listen to the audio
