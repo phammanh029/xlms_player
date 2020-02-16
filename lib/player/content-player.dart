@@ -50,6 +50,12 @@ class _ContentPlayerState extends State<ContentPlayer> {
         },
         child: Column(
           children: <Widget>[
+            BlocBuilder(
+                bloc: _bloc,
+                builder: (context, state) {
+                  return Text(
+                      '${_controller.page.toInt() + 1} / ${widget.items.length}');
+                }),
             Expanded(
               child: PageView(
                   controller: _controller,
