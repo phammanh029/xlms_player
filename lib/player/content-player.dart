@@ -22,6 +22,7 @@ class _ContentPlayerState extends State<ContentPlayer> {
   @override
   void initState() {
     _bloc = ContentPlayerBloc();
+    _bloc.add(ContentPLayerEventInitial(totalItem: widget.items.length));
     _bloc.add(ContentPlayerEventMove(item: widget.items[0]));
     super.initState();
   }
@@ -43,7 +44,7 @@ class _ContentPlayerState extends State<ContentPlayer> {
           if (state is ContentPlayerStateDone) {
             if (_controller.page < widget.items.length - 1) {
               _controller.nextPage(
-                  duration: Duration(seconds: 1), curve: Curves.easeInOutExpo);
+                  duration: Duration(seconds: 2), curve: Curves.easeInOutExpo);
             }
           }
         },
@@ -68,7 +69,9 @@ class _ContentPlayerState extends State<ContentPlayer> {
                   }
 
                   if (state is ContentPlayerStateDone) {
-                    return const Text('Move to next page in a seconds');
+                    return state.isCompleted
+                        ? const Text('All page completed')
+                        : const Text('Move to next page in a few seconds');
                   }
 
                   return const CircularProgressIndicator();
