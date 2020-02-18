@@ -6,6 +6,8 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
+import 'package:uuid/uuid.dart';
 
 class HomeEvent extends Equatable {
   @override
@@ -21,6 +23,15 @@ class HomeEventFileSelected extends HomeEvent {
 
   @override
   List<Object> get props => [selectedFile];
+}
+
+class HomeEventInternetSelected extends HomeEvent {
+  final String url;
+
+  HomeEventInternetSelected({@required this.url});
+
+  @override
+  List<Object> get props => [url];
 }
 
 // state
@@ -67,6 +78,21 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   @override
   Stream<HomeState> mapEventToState(HomeEvent event) async* {
+    if (event is HomeEventInternetSelected) {
+      // handle download
+      try {
+        yield HomeStateLoading();
+        Dio dio = new Dio();
+        final savePath = await localFile(Uuid().v4());
+        final response = await dio.download(event.url, savePath);
+        if (response.statusCode == 200) {
+          // add new event
+          add(HomeEventFileSelected(selectedFile: File(savePath)));
+        }
+      } catch (error) {
+        yield HomeStateError(error: error.toString());
+      }
+    }
     if (event is HomeEventFileSelected) {
       // do extract
       try {

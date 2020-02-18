@@ -13,6 +13,7 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
   HomeBloc _bloc;
+  final TextEditingController _controller = TextEditingController();
   @override
   void initState() {
     _bloc = HomeBloc();
@@ -32,25 +33,46 @@ class _HomeWidgetState extends State<HomeWidget> {
         body: SafeArea(
       child: Column(
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: MaterialButton(
-                  color: Colors.blue,
-                  onPressed: () async {
-                    File file = await FilePicker.getFile(fileExtension: '.zip');
-                    // decompress file
-                    if (file != null) {
-                      _bloc.add(HomeEventFileSelected(selectedFile: file));
-                    }
-                  },
-                  child: const Text('Browse file'),
-                ),
-              )
-            ],
-          ),
+          Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Expanded(
+                      child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                        hintText: 'Enter url of file and click download beside',
+                        suffixIcon: IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              // handle clear
+                              _controller.clear();
+                            })),
+                  )),
+                  IconButton(
+                      icon: const Icon(Icons.file_download),
+                      onPressed: () async {
+                        // trigger download from url
+                        // decompress file
+                        if (_controller.text.isNotEmpty) {
+                          _bloc.add(
+                              HomeEventInternetSelected(url: _controller.text));
+                        }
+                      }),
+                  IconButton(
+                    icon: const Icon(Icons.attach_file),
+                    onPressed: () async {
+                      File file =
+                          await FilePicker.getFile(fileExtension: '.zip');
+                      // decompress file
+                      if (file != null) {
+                        _bloc.add(HomeEventFileSelected(selectedFile: file));
+                      }
+                    },
+                  ),
+                ],
+              )),
           Expanded(
               child: BlocBuilder(
                   bloc: _bloc,

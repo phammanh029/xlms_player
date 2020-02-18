@@ -21,16 +21,16 @@ class _ContentPlayerState extends State<ContentPlayer> {
   final PageController _controller = PageController();
   @override
   void initState() {
+    super.initState();
     _bloc = ContentPlayerBloc();
     _bloc.add(ContentPLayerEventInitial(totalItem: widget.items.length));
     _bloc.add(ContentPlayerEventMove(item: widget.items[0]));
-    super.initState();
   }
 
   @override
   void dispose() {
-    _bloc.close();
     _controller.dispose();
+    _bloc.close();
     super.dispose();
   }
 
@@ -54,7 +54,7 @@ class _ContentPlayerState extends State<ContentPlayer> {
                 bloc: _bloc,
                 builder: (context, state) {
                   return Text(
-                      '${_controller.page.toInt() + 1} / ${widget.items.length}');
+                      '${_controller.hasClients ? _controller.page.toInt() + 1 : 1} / ${widget.items.length}');
                 }),
             Expanded(
               child: InkWell(

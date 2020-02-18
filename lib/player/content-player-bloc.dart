@@ -116,9 +116,17 @@ class ContentPlayerBloc extends Bloc<ContentPlayerEvent, ContentPlayerState> {
   ContentPlayerState get initialState => ContentPlayerStateInitial();
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
+    await _stopPlayer();
     player.dispose();
     return super.close();
+  }
+
+  Future _stopPlayer() async {
+    if (player.state == AudioPlayerState.PLAYING ||
+        player.state == AudioPlayerState.PAUSED) {
+      await player.stop();
+    }
   }
 
   @override
@@ -145,10 +153,7 @@ class ContentPlayerBloc extends Bloc<ContentPlayerEvent, ContentPlayerState> {
     // print('>>> test');
     if (event is ContentPlayerEventMove) {
       // print(event.item.audioPath);
-      if (player.state == AudioPlayerState.PLAYING ||
-          player.state == AudioPlayerState.PAUSED) {
-        await player.stop();
-      }
+      await _stopPlayer();
       player.play(event.item.audioPath, isLocal: true);
       _current++;
       // play audio at item
